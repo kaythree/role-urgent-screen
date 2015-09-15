@@ -1,0 +1,9 @@
+{
+  "name": "J Madi1",
+  "children": [
+    {"name": "Role 1"},
+    {"name": "Role 2"},
+    {"name": "Role 3"},
+    {"name": "Role 4"}
+  ]
+}

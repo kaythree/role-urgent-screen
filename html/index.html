@@ -1,0 +1,164 @@
+<!doctype html>
+<html ng-app="AngularModule">
+	<head>
+		<title> Accordian </title>
+		<link rel="stylesheet" href="../css/style.css" />
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.common-material.min.css" />
+	    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.material.min.css" />
+	    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.dataviz.min.css" />
+	    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.dataviz.material.min.css" />
+	    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.common.min.css" />
+    	<link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.default.min.css" />
+    	<script type="text/javascript" src="../js/d3.min.js"></script>
+	</head>
+	<body>
+
+		<div class="main-container" ng-init="init()" ng-controller="UserController">
+			<h1>Role Management</h1>
+			<div class="role-management">
+				<div class="user-container">
+					<div class="expand-user" ng-click="showD3ActiveLayer($event)">
+						<i class="fa" ng-class="{'fa-chevron-down':showD3 , 'fa-chevron-right':!showD3}"></i>
+					</div>		
+					<div class="add-user">
+						<div class="user"><i class="fa fa-user"></i><span>Add Users</span></div>
+						<div class="user white-line" ng-click="showAddUserBlock()" ng-class="{'selected':activeUser}"><i class="fa fa-plus green"></i><span class="active-white-line"></span></div>
+					</div>
+					<div class="add-role">
+						<div class="user"><i class="fa fa-users"></i><span>Add Roles</span></div>
+						<div class="user white-line" ng-click="showUserGroupsBlock()" ng-class="{'selected':activeGroup}"><i class="fa fa-plus green"></i><span class="active-white-line-two"></span></div>
+					</div>	
+					<div class="find-user">
+						<div class="icon-view-left">
+							<span class="text">Find</span>
+							<input type="text" nam="userSearch" value="" placeholder="JMadi 1">
+							<span class="text"><i class="fa fa-search"></i></span>
+							<span class="text white-line"></span>
+							<span class="text no-bold">Find : <b>Users</b></span>
+						</div>
+						<div class="icon-view">
+							<div class="icon" ng-click="showUserBlock()" ng-class="{'icon-hover':showGrid}"><i class="fa fa-user"></i><span>Users</span>
+								<div class="marker-users" ng-class="{'show':showGrid}"><i class="fa fa-caret-up fa-3x"></i></div>
+							</div>
+							<div class="icon"><i class="fa fa-users"></i><span>Roles</span></div>
+							<div class="icon"><i class="fa fa-university"></i><span>Segment</span></div>
+						</div>
+					</div>				
+				</div>
+				<div class="add-users-container" ng-class="{'show':showAddUser, 'hide':!showAddUser}">
+					<div>
+						<div class="block"><input type="text" name="uswmData" value="US: WallMart: 00"></div>
+					</div>
+					<div class="grpBlock" ng-class="{'show':showGroups, 'hide':!showGroups}">
+						<div class="block left-margin" ng-click="showGroupDropdownBlock()">
+							<span>Groups </span>
+							<input type="text" name="grpName" value="Group 5">
+						</div>
+					</div>
+					<div class="block left-margin right-block" ng-class="{'show':showGroups, 'hide':!showGroups}"></div>
+					<div id="check-grid" ng-controller="checkCtrl" ng-class="{'show':showGroups, 'hide':!showGroups}">
+						<kendo-grid options="mainGridOptions">
+						</kendo-grid>
+					</div>
+
+					<div class="groups-box show" ng-class="{'show':showGroups, 'hide':!showGroups}">
+						<div class="role">
+							<span class="role-header">Offer</span>
+							<div class="list" ng-repeat="role in roleArr">
+								<span name="{{role}}" location="left" index="{{$index}}" ng-click="movableItem($event)">{{role}}</span>
+							</div>
+						</div>
+						<div class="move-btn">
+							<div class="left" ng-click="moveItem('left')" ng-class="{'active-left':activeBtnLeft}"> <i class="fa fa-caret-right" style="padding-top:4px; padding-left:2px;"></i></div>
+							<div class="right" ng-click="moveItem('right')" ng-class="{'active-right':activeBtnRight}"> <i class="fa fa-caret-left" style="padding-top:4px; padding-left:2px;"></i></div>
+						</div>
+						<div class="role role-adj">
+							<span class="role-header">Offer</span>
+							<div class="list" ng-repeat="role in roleSelectedArr">
+								<span name="{{role}}" location="right" index="{{$index}}" ng-click="movableItem($event)">{{role}}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="approval-buttons">
+					<a href="#" class="app-button approve">
+						<span class="app-text">Submit</span>
+					</a>
+					<a href="#" class="app-button cancel">
+						<span class="app-text">Cancel</span>
+					</a>
+				</div>
+
+				<div class="users-d3-view" ng-class="{'show':showD3, 'hide':!showD3}">
+					<div class="blue-patch" ng-show="blueLayer"></div>
+					<div class="view-heading">
+						<i class="fa fa-sitemap"></i>
+						<strong>View</strong>- Users
+					</div>
+					<!--<div class="circle-view">
+						<div class="circle r1"><span><i class="fa fa-user"></i>Role1</span></div>
+						<div class="circle r2"><span><i class="fa fa-user"></i>Role2</span></div>
+						<div class="circle r3"><span><i class="fa fa-user"></i>Role3</span></div>
+						<div class="circle r4"><span><i class="fa fa-user"></i>Role4</span></div>
+					</div> -->
+					<div class="node-circle-view"></div>
+				</div>
+			</div>
+			
+			<div id="details-grid" ng-class="{'show':showGrid, 'hide':!showGrid}">
+				<div ng-controller="GridCtrl">
+					<kendo-grid options="mainGridOptions">
+					</kendo-grid>
+				</div>
+			</div>
+			
+		</div>
+		<script type="text/javascript"> 
+			var width = 450; 
+			var height = 250; 
+			var cluster = d3.layout.cluster()
+			   .size([height, width-250]); 
+			var diagonal = d3.svg.diagonal()    
+			   .projection (function(d) { return [d.y, d.x];}); 
+			var svg = d3.select(".node-circle-view").append("svg")    
+			   .attr("width",width)    
+			   .attr("height",height)    
+			   .append("g")    
+			   .attr("transform","translate(100,0)"); 
+			d3.json("nodes.json", function(error, root){    
+			   var nodes = cluster.nodes(root);    
+			   var links = cluster.links(nodes);    
+			   var link = svg.selectAll(".link")       
+			      .data(links)       
+			      .enter().append("path")       
+			      .attr("class","link hide-tree")       
+			      .attr("d", diagonal);     
+			   var node = svg.selectAll(".node")       
+			      .data(nodes)       
+			      .enter().append("g")   
+			      .attr("class", function(d) { return d.children ? "node" : "node hide-tree"; } )    
+			      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; }); 
+			   node.append("circle")       
+			      .attr("r", 10)
+			      .attr("ng-click", function(d) { return d.children ? "expandTree($event)" : ""; } ) ; 
+			   node.append("text") 
+			      .attr("class", "text-color")
+			      .attr("dx", function(d) { return d.children ? -12 : 15; })       
+			      .attr("dy", 5)       
+			      .style("text-anchor", function(d) { return d.children ? "end" : "start"; })  
+			      .attr("fill","#ffffff") 
+			      .text( function(d){ return d.name;}); 
+			    node.append("g").append("text")
+			   .attr("x",function(d) { return d.children ? 15 : 60; })  
+			   .attr("y",5)
+			   .attr("fill",function(d) { return d.children ? 'yellow' : 'white'; })
+			   .text("\uf085");
+			}); 
+		</script>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular.min.js"></script>
+		<script src="../js/libs/kendo.all.min.js"></script>
+		<script type="text/javascript" src="../js/script.js"></script>
+	</body>
+</html>
